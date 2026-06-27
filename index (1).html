@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>بیت‌پین | پنل معاملات</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #21262d;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text2: #8b949e;
+    --green: #2ea043;
+    --green-light: #3fb950;
+    --red: #da3633;
+    --red-light: #f85149;
+    --accent: #f0883e;
+    --accent2: #d29922;
+    --blue: #388bfd;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Vazirmatn', 'Tahoma', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    font-size: 14px;
+  }
+
+  /* ───── Header ───── */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-logo { font-size: 20px; }
+  .header h1 { font-size: 16px; font-weight: 700; color: var(--accent); }
+  .header-sub { font-size: 11px; color: var(--text2); }
+
+  /* ───── Nav Tabs ───── */
+  .nav {
+    display: flex;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    scrollbar-width: none;
+    position: sticky;
+    top: 57px;
+    z-index: 99;
+  }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav-btn {
+    flex: 1;
+    min-width: 70px;
+    padding: 10px 8px;
+    background: none;
+    border: none;
+    color: var(--text2);
+    font-size: 11px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .nav-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  .nav-btn .icon { font-size: 18px; }
+
+  /* ───── Pages ───── */
+  .page { display: none; padding: 16px; }
+  .page.active { display: block; }
+
+  /* ───── Cards ───── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .card-title {
+    font-size: 12px;
+    color: var(--text2);
+    margin-bottom: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ───── Market Row ───── */
+  .market-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .market-row:last-child { border-bottom: none; }
+  .market-name { font-weight: 600; font-size: 13px; }
+  .market-symbol { font-size: 11px; color: var(--text2); margin-top: 2px; }
+  .market-price { text-align: left; font-weight: 700; font-size: 14px; }
+  .market-change {
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+  .market-change.up { background: rgba(46,160,67,0.2); color: var(--green-light); }
+  .market-change.down { background: rgba(218,54,51,0.2); color: var(--red-light); }
+
+  /* ───── Balance ───── */
+  .balance-total {
+    text-align: center;
+    padding: 20px 0 10px;
+  }
+  .balance-total .amount {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .balance-total .label { font-size: 12px; color: var(--text2); margin-top: 4px; }
+
+  .asset-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .asset-row:last-child { border-bottom: none; }
+  .asset-icon { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; margin-left: 10px; }
+  .asset-info { display: flex; align-items: center; }
+  .asset-name { font-weight: 600; font-size: 13px; }
+  .asset-symbol { font-size: 11px; color: var(--text2); }
+  .asset-balance { text-align: left; }
+  .asset-balance .amount { font-weight: 700; }
+  .asset-balance .value { font-size: 11px; color: var(--text2); }
+
+  /* ───── Calc ───── */
+  .calc-box {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .calc-label { font-size: 12px; color: var(--text2); margin-bottom: 6px; }
+  .calc-input-row { display: flex; gap: 8px; align-items: center; }
+  .calc-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    color: var(--text);
+    font-size: 16px;
+    font-family: inherit;
+    direction: ltr;
+    text-align: right;
+  }
+  .calc-input:focus { outline: none; border-color: var(--accent); }
+  .calc-select {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 8px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .calc-arrow {
+    text-align: center;
+    font-size: 20px;
+    color: var(--text2);
+    padding: 8px;
+    cursor: pointer;
+    transition: transform 0.3s;
+  }
+  .calc-result {
+    background: rgba(240,136,62,0.1);
+    border: 1px solid rgba(240,136,62,0.3);
+    border-radius: var(--radius);
+    padding: 16px;
+    text-align: center;
+    margin-top: 12px;
+  }
+  .calc-result .res-amount { font-size: 24px; font-weight: 800; color: var(--accent); }
+  .calc-result .res-label { font-size: 12px; color: var(--text2); margin-top: 4px; }
+
+  /* ───── Order Form ───── */
+  .order-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+  .order-tab {
+    flex: 1;
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--border);
+    background: none;
+    color: var(--text2);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .order-tab.buy.active { background: var(--green); border-color: var(--green); color: white; }
+  .order-tab.sell.active { background: var(--red); border-color: var(--red); color: white; }
+
+  .form-group { margin-bottom: 12px; }
+  .form-label { font-size: 12px; color: var(--text2); margin-bottom: 6px; display: block; }
+  .form-input {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    color: var(--text);
+    font-size: 15px;
+    font-family: inherit;
+    direction: ltr;
+    text-align: right;
+  }
+  .form-input:focus { outline: none; border-color: var(--accent); }
+  .form-select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+  }
+
+  .exec-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+  .exec-tab {
+    flex: 1;
+    padding: 8px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: none;
+    color: var(--text2);
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  .exec-tab.active { border-color: var(--accent); color: var(--accent); background: rgba(240,136,62,0.1); }
+
+  .order-summary {
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    margin-bottom: 12px;
+    font-size: 13px;
+  }
+  .summary-row { display: flex; justify-content: space-between; padding: 4px 0; }
+  .summary-row .val { font-weight: 600; }
+
+  /* ───── Buttons ───── */
+  .btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity 0.2s;
+  }
+  .btn:active { opacity: 0.8; }
+  .btn-buy { background: var(--green); color: white; }
+  .btn-sell { background: var(--red); color: white; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-outline {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text);
+    width: auto;
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+
+  /* ───── Orders List ───── */
+  .order-row {
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    margin-bottom: 8px;
+  }
+  .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .order-badge {
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .badge-buy { background: rgba(46,160,67,0.2); color: var(--green-light); }
+  .badge-sell { background: rgba(218,54,51,0.2); color: var(--red-light); }
+  .badge-open { background: rgba(56,139,253,0.2); color: var(--blue); }
+  .badge-done { background: rgba(139,148,158,0.2); color: var(--text2); }
+  .order-detail { font-size: 12px; color: var(--text2); display: flex; gap: 12px; flex-wrap: wrap; }
+  .order-detail span { display: flex; gap: 4px; }
+  .order-detail .v { color: var(--text); font-weight: 600; }
+
+  /* ───── Alert ───── */
+  .alert-row {
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .alert-info { font-size: 13px; }
+  .alert-symbol { font-weight: 700; }
+  .alert-cond { font-size: 11px; color: var(--text2); margin-top: 3px; }
+  .del-btn {
+    background: rgba(218,54,51,0.2);
+    border: none;
+    color: var(--red-light);
+    padding: 6px 10px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  /* ───── Misc ───── */
+  .loading { text-align: center; color: var(--text2); padding: 40px; font-size: 13px; }
+  .loading .spin { font-size: 24px; animation: spin 1s linear infinite; display: block; margin-bottom: 10px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty { text-align: center; color: var(--text2); padding: 40px; }
+  .empty .icon { font-size: 32px; margin-bottom: 10px; }
+
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 20px;
+    font-size: 13px;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.3s;
+    max-width: 90vw;
+    text-align: center;
+  }
+  .toast.show { opacity: 1; }
+  .toast.success { border-color: var(--green); color: var(--green-light); }
+  .toast.error { border-color: var(--red); color: var(--red-light); }
+
+  .divider { height: 1px; background: var(--border); margin: 12px 0; }
+
+  .price-big {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--text);
+  }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text2);
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .refresh-btn {
+    background: none;
+    border: none;
+    color: var(--text2);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px;
+  }
+  .refresh-btn:active { color: var(--accent); }
+
+  /* confirm modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 200;
+    display: none;
+    align-items: flex-end;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--surface);
+    border-radius: var(--radius) var(--radius) 0 0;
+    padding: 20px;
+    width: 100%;
+  }
+  .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; text-align: center; }
+  .modal-btns { display: flex; gap: 10px; margin-top: 16px; }
+  .modal-btn { flex: 1; padding: 12px; border-radius: var(--radius-sm); border: none; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  .modal-btn.confirm { background: var(--green); color: white; }
+  .modal-btn.confirm.sell { background: var(--red); }
+  .modal-btn.cancel-btn { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-logo">🪙</div>
+  <div>
+    <h1>بیت‌پین</h1>
+    <div class="header-sub">پنل معاملات حرفه‌ای</div>
+  </div>
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+  <button class="nav-btn active" onclick="showPage('prices')">
+    <span class="icon">📊</span>قیمت‌ها
+  </button>
+  <button class="nav-btn" onclick="showPage('balance')">
+    <span class="icon">💰</span>موجودی
+  </button>
+  <button class="nav-btn" onclick="showPage('calc')">
+    <span class="icon">🧮</span>ماشین‌حساب
+  </button>
+  <button class="nav-btn" onclick="showPage('order')">
+    <span class="icon">🟢</span>سفارش
+  </button>
+  <button class="nav-btn" onclick="showPage('orders')">
+    <span class="icon">📋</span>سفارش‌ها
+  </button>
+  <button class="nav-btn" onclick="showPage('alerts')">
+    <span class="icon">🔔</span>هشدار
+  </button>
+</nav>
+
+<!-- ══════════════════════ PRICES PAGE ══════════════════════ -->
+<div id="page-prices" class="page active">
+  <div class="section-title">
+    قیمت لحظه‌ای
+    <button class="refresh-btn" onclick="loadPrices()">🔄</button>
+  </div>
+  <div id="prices-list"><div class="loading"><span class="spin">⏳</span>در حال دریافت قیمت‌ها...</div></div>
+</div>
+
+<!-- ══════════════════════ BALANCE PAGE ══════════════════════ -->
+<div id="page-balance" class="page">
+  <div class="section-title">
+    موجودی کیف پول
+    <button class="refresh-btn" onclick="loadBalance()">🔄</button>
+  </div>
+  <div id="balance-content"><div class="loading"><span class="spin">⏳</span>در حال دریافت موجودی...</div></div>
+</div>
+
+<!-- ══════════════════════ CALC PAGE ══════════════════════ -->
+<div id="page-calc" class="page">
+  <div class="card-title" style="margin-bottom:12px">ماشین‌حساب تبدیل ارز</div>
+
+  <div class="calc-box">
+    <div class="calc-label">مقدار ورودی</div>
+    <div class="calc-input-row">
+      <input type="number" class="calc-input" id="calc-amount" placeholder="0" oninput="calcConvert()">
+      <select class="calc-select" id="calc-from" onchange="calcConvert()">
+        <option value="IRT">تومان</option>
+        <option value="USDT">تتر</option>
+        <option value="TRX">ترون</option>
+        <option value="TON">تون</option>
+        <option value="BTC">بیت‌کوین</option>
+        <option value="ETH">اتریوم</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="calc-arrow" onclick="swapCalc()">⇅</div>
+
+  <div class="calc-box">
+    <div class="calc-label">تبدیل به</div>
+    <div class="calc-input-row">
+      <input type="number" class="calc-input" id="calc-result-input" placeholder="0" readonly>
+      <select class="calc-select" id="calc-to" onchange="calcConvert()">
+        <option value="USDT">تتر</option>
+        <option value="IRT">تومان</option>
+        <option value="TRX">ترون</option>
+        <option value="TON">تون</option>
+        <option value="BTC">بیت‌کوین</option>
+        <option value="ETH">اتریوم</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="calc-detail" class="calc-result" style="display:none">
+    <div class="res-amount" id="calc-res-amount">-</div>
+    <div class="res-label" id="calc-res-label"></div>
+    <div style="margin-top:8px;font-size:11px;color:var(--text2)">⚠️ مقادیر تقریبی و بدون کارمزد</div>
+  </div>
+</div>
+
+<!-- ══════════════════════ ORDER PAGE ══════════════════════ -->
+<div id="page-order" class="page">
+  <div class="order-tabs">
+    <button class="order-tab buy active" onclick="setOrderSide('buy')">خرید</button>
+    <button class="order-tab sell" onclick="setOrderSide('sell')">فروش</button>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">بازار</label>
+    <select class="form-select" id="order-market" onchange="updateOrderPrice()">
+      <option value="USDT_IRT">تتر / تومان (USDT-IRT)</option>
+      <option value="TRX_IRT">ترون / تومان (TRX-IRT)</option>
+      <option value="TON_IRT">تون / تومان (TON-IRT)</option>
+      <option value="BTC_IRT">بیت‌کوین / تومان (BTC-IRT)</option>
+      <option value="ETH_IRT">اتریوم / تومان (ETH-IRT)</option>
+      <option value="TRX_USDT">ترون / تتر (TRX-USDT)</option>
+      <option value="TON_USDT">تون / تتر (TON-USDT)</option>
+    </select>
+  </div>
+
+  <div class="exec-tabs">
+    <button class="exec-tab active" onclick="setExec('limit')">📌 Limit</button>
+    <button class="exec-tab" onclick="setExec('market')">⚡ Market</button>
+  </div>
+
+  <div class="form-group" id="price-group">
+    <label class="form-label">قیمت واحد <span id="price-unit" style="color:var(--text2)"></span></label>
+    <input type="number" class="form-input" id="order-price" placeholder="0" oninput="updateSummary()">
+    <div style="font-size:11px;color:var(--text2);margin-top:4px">
+      قیمت لحظه‌ای: <span id="current-price" style="color:var(--accent)">در حال دریافت...</span>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">حجم <span id="amount-unit" style="color:var(--text2)"></span></label>
+    <input type="number" class="form-input" id="order-amount" placeholder="0" oninput="updateSummary()">
+  </div>
+
+  <div class="order-summary" id="order-summary" style="display:none">
+    <div class="summary-row"><span>نوع:</span><span class="val" id="sum-type">-</span></div>
+    <div class="summary-row"><span>بازار:</span><span class="val" id="sum-market">-</span></div>
+    <div class="summary-row"><span>قیمت:</span><span class="val" id="sum-price">-</span></div>
+    <div class="summary-row"><span>حجم:</span><span class="val" id="sum-amount">-</span></div>
+    <div class="divider"></div>
+    <div class="summary-row"><span>مبلغ کل:</span><span class="val" id="sum-total" style="color:var(--accent)">-</span></div>
+  </div>
+
+  <button class="btn btn-buy" id="submit-order-btn" onclick="confirmOrder()">ثبت سفارش خرید</button>
+</div>
+
+<!-- ══════════════════════ ORDERS PAGE ══════════════════════ -->
+<div id="page-orders" class="page">
+  <div class="exec-tabs" style="margin-bottom:16px">
+    <button class="exec-tab active" onclick="setOrdersTab('open')">باز</button>
+    <button class="exec-tab" onclick="setOrdersTab('history')">تاریخچه</button>
+  </div>
+  <div class="section-title">
+    <span id="orders-title">سفارش‌های باز</span>
+    <button class="refresh-btn" onclick="loadOrders()">🔄</button>
+  </div>
+  <div id="orders-list"><div class="loading"><span class="spin">⏳</span>در حال دریافت...</div></div>
+</div>
+
+<!-- ══════════════════════ ALERTS PAGE ══════════════════════ -->
+<div id="page-alerts" class="page">
+  <div class="section-title">هشدارهای قیمت</div>
+
+  <div class="card">
+    <div class="card-title">هشدار جدید</div>
+    <div class="form-group">
+      <label class="form-label">ارز</label>
+      <select class="form-select" id="alert-currency">
+        <option value="USDT_IRT">تتر (USDT)</option>
+        <option value="TRX_IRT">ترون (TRX)</option>
+        <option value="TON_IRT">تون (TON)</option>
+        <option value="BTC_IRT">بیت‌کوین (BTC)</option>
+        <option value="ETH_IRT">اتریوم (ETH)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">شرط</label>
+      <select class="form-select" id="alert-direction">
+        <option value="above">بالاتر از قیمت 📈</option>
+        <option value="below">پایین‌تر از قیمت 📉</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">قیمت (تومان)</label>
+      <input type="number" class="form-input" id="alert-price" placeholder="مثلاً 75000">
+    </div>
+    <button class="btn btn-primary" onclick="addAlert()">➕ افزودن هشدار</button>
+  </div>
+
+  <div class="section-title" style="margin-top:8px">هشدارهای فعال</div>
+  <div id="alerts-list"></div>
+</div>
+
+<!-- Confirm Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">تأیید سفارش</div>
+    <div id="modal-body"></div>
+    <div class="modal-btns">
+      <button class="modal-btn cancel-btn" onclick="closeModal()">انصراف</button>
+      <button class="modal-btn confirm" id="modal-confirm-btn" onclick="submitOrder()">ثبت سفارش</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── Telegram WebApp ───
+const tg = window.Telegram.WebApp;
+tg.ready();
+tg.expand();
+tg.setHeaderColor('#0d1117');
+tg.setBackgroundColor('#0d1117');
+
+// ─── State ───
+const API = 'https://api.bitpin.ir';
+let prices = {};
+let balances = {};
+let orderSide = 'buy';
+let execType = 'limit';
+let ordersTab = 'open';
+let alerts = JSON.parse(localStorage.getItem('bp_alerts') || '[]');
+let pendingOrder = null;
+
+const ASSETS = { USDT:'تتر', TRX:'ترون', TON:'تون', BTC:'بیت‌کوین', ETH:'اتریوم', IRT:'تومان' };
+const MARKETS_LABEL = {
+  'USDT_IRT':'تتر/تومان','TRX_IRT':'ترون/تومان','TON_IRT':'تون/تومان',
+  'BTC_IRT':'بیت‌کوین/تومان','ETH_IRT':'اتریوم/تومان',
+  'TRX_USDT':'ترون/تتر','TON_USDT':'تون/تتر'
+};
+
+// ─── Auth (via Telegram bot) ───
+// توکن از bot می‌آید — اگر کاربر لاگین نشده باشد، ربات قبلاً token داده
+const userId = tg.initDataUnsafe?.user?.id;
+
+// ─── Format ───
+function fmt(n) {
+  const v = parseFloat(n);
+  if (!v || isNaN(v)) return '0';
+  if (v >= 1e9) return (v/1e9).toFixed(2)+'B';
+  if (v >= 1e6) return (v/1e6).toFixed(2)+'M';
+  if (v >= 1000) return v.toLocaleString('fa-IR', {maximumFractionDigits: 0});
+  return v.toLocaleString('fa-IR', {maximumFractionDigits: 6});
+}
+
+function fmtChange(c) {
+  const v = parseFloat(c);
+  if (isNaN(v)) return {cls:'up', txt:'0%'};
+  return { cls: v >= 0 ? 'up' : 'down', txt: (v >= 0 ? '▲ +' : '▼ ') + v.toFixed(2) + '%' };
+}
+
+// ─── Toast ───
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.className = 'toast', 2800);
+}
+
+// ─── Navigation ───
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+
+  if (name === 'prices') loadPrices();
+  else if (name === 'balance') loadBalance();
+  else if (name === 'order') updateOrderPrice();
+  else if (name === 'orders') loadOrders();
+  else if (name === 'alerts') renderAlerts();
+}
+
+// ─── Prices ───
+async function loadPrices() {
+  try {
+    const r = await fetch(API + '/api/v1/mkt/tickers/');
+    const data = await r.json();
+    prices = {};
+    data.forEach(m => prices[m.symbol] = m);
+
+    const symbols = ['USDT_IRT','TRX_IRT','TON_IRT','BTC_IRT','ETH_IRT','TRX_USDT','TON_USDT'];
+    const labels  = {
+      'USDT_IRT':'تتر / تومان','TRX_IRT':'ترون / تومان','TON_IRT':'تون / تومان',
+      'BTC_IRT':'بیت‌کوین / تومان','ETH_IRT':'اتریوم / تومان',
+      'TRX_USDT':'ترون / تتر','TON_USDT':'تون / تتر'
+    };
+
+    let html = '';
+    symbols.forEach(sym => {
+      const m = prices[sym];
+      if (!m) return;
+      const ch = fmtChange(m.daily_change_price);
+      html += `
+        <div class="market-row" onclick="selectMarketOrder('${sym}')">
+          <div>
+            <div class="market-name">${labels[sym]}</div>
+            <div class="market-symbol">${sym.replace('_','/')}</div>
+          </div>
+          <div style="text-align:left">
+            <div class="market-price">${fmt(m.price)}</div>
+            <div class="market-change ${ch.cls}">${ch.txt}</div>
+          </div>
+        </div>`;
+    });
+    document.getElementById('prices-list').innerHTML = html || '<div class="empty"><div class="icon">📭</div>داده‌ای یافت نشد</div>';
+  } catch(e) {
+    document.getElementById('prices-list').innerHTML = '<div class="empty"><div class="icon">❌</div>خطا در دریافت قیمت‌ها</div>';
+  }
+}
+
+function selectMarketOrder(sym) {
+  document.getElementById('order-market').value = sym;
+  showPage('order');
+  document.querySelectorAll('.nav-btn')[3].classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach((b,i) => { if(i!==3) b.classList.remove('active'); });
+  updateOrderPrice();
+}
+
+// ─── Balance ───
+async function loadBalance() {
+  document.getElementById('balance-content').innerHTML = '<div class="loading"><span class="spin">⏳</span>در حال دریافت...</div>';
+  try {
+    // برای موجودی نیاز به توکن است — از ربات دریافت می‌شود
+    // اینجا فقط قیمت‌ها رو نمایش می‌دهیم چون API Key مستقیم توی مینی اپ نمی‌ذاریم
+    // کاربر باید از ربات موجودی بگیرد
+    document.getElementById('balance-content').innerHTML = `
+      <div class="card" style="text-align:center;padding:24px">
+        <div style="font-size:32px;margin-bottom:12px">🔐</div>
+        <div style="font-weight:700;margin-bottom:8px">برای مشاهده موجودی</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:16px">
+          موجودی کیف پول از طریق ربات تلگرام قابل مشاهده است
+        </div>
+        <button class="btn btn-primary" onclick="tg.close()">بازگشت به ربات</button>
+      </div>`;
+  } catch(e) {
+    document.getElementById('balance-content').innerHTML = '<div class="empty"><div class="icon">❌</div>خطا</div>';
+  }
+}
+
+// ─── Calc ───
+function calcConvert() {
+  const amount = parseFloat(document.getElementById('calc-amount').value);
+  const from   = document.getElementById('calc-from').value;
+  const to     = document.getElementById('calc-to').value;
+  const detail = document.getElementById('calc-detail');
+
+  if (!amount || isNaN(amount)) { detail.style.display = 'none'; return; }
+
+  let result = 0;
+  const getPrice = (base) => {
+    const sym = base + '_IRT';
+    return prices[sym] ? parseFloat(prices[sym].price) : 0;
+  };
+
+  if (from === to) { result = amount; }
+  else if (from === 'IRT' && to !== 'IRT') {
+    const p = getPrice(to);
+    result = p > 0 ? amount / p : 0;
+  } else if (from !== 'IRT' && to === 'IRT') {
+    const p = getPrice(from);
+    result = amount * p;
+  } else if (from !== 'IRT' && to !== 'IRT') {
+    const pFrom = getPrice(from);
+    const pTo   = getPrice(to);
+    result = (pFrom > 0 && pTo > 0) ? (amount * pFrom) / pTo : 0;
+  }
+
+  document.getElementById('calc-result-input').value = result > 0 ? result.toFixed(8).replace(/\.?0+$/, '') : '0';
+  document.getElementById('calc-res-amount').textContent = fmt(result) + ' ' + (ASSETS[to] || to);
+  document.getElementById('calc-res-label').textContent = fmt(amount) + ' ' + (ASSETS[from] || from) + ' ≈ ' + fmt(result) + ' ' + (ASSETS[to] || to);
+  detail.style.display = 'block';
+}
+
+function swapCalc() {
+  const f = document.getElementById('calc-from');
+  const t = document.getElementById('calc-to');
+  [f.value, t.value] = [t.value, f.value];
+  calcConvert();
+}
+
+// ─── Order ───
+function setOrderSide(side) {
+  orderSide = side;
+  document.querySelectorAll('.order-tab').forEach(b => b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  const btn = document.getElementById('submit-order-btn');
+  btn.textContent = side === 'buy' ? 'ثبت سفارش خرید' : 'ثبت سفارش فروش';
+  btn.className = 'btn ' + (side === 'buy' ? 'btn-buy' : 'btn-sell');
+  const modal = document.getElementById('modal-confirm-btn');
+  modal.className = 'modal-btn confirm ' + (side === 'sell' ? 'sell' : '');
+  updateSummary();
+}
+
+function setExec(type) {
+  execType = type;
+  document.querySelectorAll('.exec-tab').forEach(b => b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById('price-group').style.display = type === 'limit' ? 'block' : 'none';
+  updateSummary();
+}
+
+function updateOrderPrice() {
+  const sym = document.getElementById('order-market').value;
+  const parts = sym.split('_');
+  const base  = parts[0];
+  const quote = parts[1];
+  document.getElementById('price-unit').textContent = quote;
+  document.getElementById('amount-unit').textContent = base;
+
+  const m = prices[sym];
+  if (m) {
+    document.getElementById('current-price').textContent = fmt(m.price) + ' ' + quote;
+    if (execType === 'limit' && !document.getElementById('order-price').value) {
+      document.getElementById('order-price').value = m.price;
+    }
+  } else {
+    document.getElementById('current-price').textContent = 'در حال دریافت...';
+    if (!Object.keys(prices).length) loadPrices().then(updateOrderPrice);
+  }
+  updateSummary();
+}
+
+function updateSummary() {
+  const price  = parseFloat(document.getElementById('order-price').value) || 0;
+  const amount = parseFloat(document.getElementById('order-amount').value) || 0;
+  const sym    = document.getElementById('order-market').value;
+  const parts  = sym.split('_');
+  const base   = parts[0];
+  const quote  = parts[1];
+  const summary = document.getElementById('order-summary');
+
+  if (amount > 0) {
+    summary.style.display = 'block';
+    document.getElementById('sum-type').textContent = (orderSide === 'buy' ? 'خرید' : 'فروش') + ' — ' + (execType === 'limit' ? 'Limit' : 'Market');
+    document.getElementById('sum-market').textContent = MARKETS_LABEL[sym] || sym;
+    document.getElementById('sum-price').textContent = execType === 'limit' ? (fmt(price) + ' ' + quote) : 'قیمت بازار';
+    document.getElementById('sum-amount').textContent = fmt(amount) + ' ' + base;
+    if (execType === 'limit' && price > 0) {
+      document.getElementById('sum-total').textContent = fmt(price * amount) + ' ' + quote;
+    } else {
+      const m = prices[sym];
+      if (m) {
+        document.getElementById('sum-total').textContent = '≈ ' + fmt(parseFloat(m.price) * amount) + ' ' + quote;
+      } else {
+        document.getElementById('sum-total').textContent = '-';
+      }
+    }
+  } else {
+    summary.style.display = 'none';
+  }
+}
+
+function confirmOrder() {
+  const price  = parseFloat(document.getElementById('order-price').value) || 0;
+  const amount = parseFloat(document.getElementById('order-amount').value) || 0;
+  const sym    = document.getElementById('order-market').value;
+  const parts  = sym.split('_');
+  const base   = parts[0];
+  const quote  = parts[1];
+
+  if (amount <= 0) { showToast('حجم را وارد کنید', 'error'); return; }
+  if (execType === 'limit' && price <= 0) { showToast('قیمت را وارد کنید', 'error'); return; }
+
+  pendingOrder = { sym, side: orderSide, type: execType, price, amount, base, quote };
+
+  document.getElementById('modal-title').textContent = (orderSide === 'buy' ? '🟢 تأیید خرید' : '🔴 تأیید فروش');
+  document.getElementById('modal-body').innerHTML = `
+    <div class="order-summary">
+      <div class="summary-row"><span>بازار:</span><span class="val">${MARKETS_LABEL[sym]||sym}</span></div>
+      <div class="summary-row"><span>نوع:</span><span class="val">${execType==='limit'?'Limit':'Market'}</span></div>
+      ${execType==='limit' ? `<div class="summary-row"><span>قیمت:</span><span class="val">${fmt(price)} ${quote}</span></div>` : ''}
+      <div class="summary-row"><span>حجم:</span><span class="val">${fmt(amount)} ${base}</span></div>
+      <div class="divider"></div>
+      <div class="summary-row"><span>مبلغ کل:</span><span class="val" style="color:var(--accent)">${execType==='limit'?fmt(price*amount):'بازار'} ${quote}</span></div>
+    </div>`;
+
+  document.getElementById('modal-confirm-btn').textContent = orderSide === 'buy' ? 'تأیید خرید' : 'تأیید فروش';
+  document.getElementById('modal').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('show');
+  pendingOrder = null;
+}
+
+function submitOrder() {
+  // ارسال سفارش از طریق ربات تلگرام
+  if (!pendingOrder) return;
+  const o = pendingOrder;
+  const msg = `/neworder_quick ${o.sym} ${o.side} ${o.type} ${o.amount}${o.type==='limit'?' '+o.price:''}`;
+  tg.sendData(JSON.stringify({
+    action: 'order',
+    symbol: o.sym,
+    side: o.side,
+    type: o.type,
+    amount: o.amount,
+    price: o.type === 'limit' ? o.price : null,
+  }));
+  closeModal();
+  showToast('سفارش برای تأیید به ربات ارسال شد ✅', 'success');
+}
+
+// ─── Orders ───
+function setOrdersTab(tab) {
+  ordersTab = tab;
+  document.querySelectorAll('#page-orders .exec-tab').forEach(b => b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById('orders-title').textContent = tab === 'open' ? 'سفارش‌های باز' : 'تاریخچه سفارش‌ها';
+  loadOrders();
+}
+
+async function loadOrders() {
+  document.getElementById('orders-list').innerHTML = '<div class="loading"><span class="spin">⏳</span>در حال دریافت...</div>';
+  document.getElementById('orders-list').innerHTML = `
+    <div class="card" style="text-align:center;padding:24px">
+      <div style="font-size:32px;margin-bottom:12px">🔐</div>
+      <div style="font-weight:700;margin-bottom:8px">برای مشاهده سفارش‌ها</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:16px">
+        لیست سفارش‌ها از طریق ربات تلگرام قابل مشاهده است
+      </div>
+      <button class="btn btn-primary" onclick="tg.close()">بازگشت به ربات</button>
+    </div>`;
+}
+
+// ─── Alerts (local) ───
+function addAlert() {
+  const sym  = document.getElementById('alert-currency').value;
+  const dir  = document.getElementById('alert-direction').value;
+  const price = parseFloat(document.getElementById('alert-price').value);
+  if (!price || price <= 0) { showToast('قیمت معتبر وارد کنید', 'error'); return; }
+
+  alerts.push({ sym, dir, price, active: true, id: Date.now() });
+  localStorage.setItem('bp_alerts', JSON.stringify(alerts));
+  document.getElementById('alert-price').value = '';
+  renderAlerts();
+  showToast('هشدار اضافه شد ✅', 'success');
+
+  // ارسال به ربات
+  tg.sendData(JSON.stringify({ action: 'alert', symbol: sym, direction: dir, price }));
+}
+
+function delAlert(id) {
+  alerts = alerts.filter(a => a.id !== id);
+  localStorage.setItem('bp_alerts', JSON.stringify(alerts));
+  renderAlerts();
+  showToast('هشدار حذف شد');
+}
+
+function renderAlerts() {
+  const labels = {
+    'USDT_IRT':'تتر','TRX_IRT':'ترون','TON_IRT':'تون','BTC_IRT':'بیت‌کوین','ETH_IRT':'اتریوم'
+  };
+  if (!alerts.length) {
+    document.getElementById('alerts-list').innerHTML = '<div class="empty"><div class="icon">🔔</div>هیچ هشداری ندارید</div>';
+    return;
+  }
+  document.getElementById('alerts-list').innerHTML = alerts.map(a => `
+    <div class="alert-row">
+      <div class="alert-info">
+        <div class="alert-symbol">${labels[a.sym]||a.sym}</div>
+        <div class="alert-cond">${a.dir==='above'?'📈 بالاتر از':'📉 پایین‌تر از'} ${fmt(a.price)} تومان</div>
+      </div>
+      <button class="del-btn" onclick="delAlert(${a.id})">🗑</button>
+    </div>`).join('');
+}
+
+// ─── Price checker for alerts ───
+function checkAlerts() {
+  if (!alerts.length) return;
+  alerts.forEach(a => {
+    const m = prices[a.sym];
+    if (!m) return;
+    const p = parseFloat(m.price);
+    if ((a.dir==='above' && p >= a.price) || (a.dir==='below' && p <= a.price)) {
+      const lbl = a.sym.replace('_IRT','');
+      showToast(`🔔 ${lbl} به ${fmt(a.price)} رسید! (${fmt(p)})`, 'success');
+    }
+  });
+}
+
+// ─── Init ───
+loadPrices().then(() => {
+  calcConvert();
+  updateOrderPrice();
+  renderAlerts();
+  checkAlerts();
+});
+
+setInterval(() => {
+  loadPrices().then(checkAlerts);
+}, 30000); // هر ۳۰ ثانیه قیمت‌ها آپدیت می‌شن
+</script>
+</body>
+</html>
