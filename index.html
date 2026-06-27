@@ -3,160 +3,64 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>بیت‌پین | پنل معاملات</title>
+<title>بیت‌پین | پنل</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
-  :root {
-    --bg: #0d1117; --surface: #161b22; --surface2: #21262d;
-    --border: #30363d; --text: #e6edf3; --text2: #8b949e;
-    --green: #2ea043; --green-light: #3fb950;
-    --red: #da3633; --red-light: #f85149;
-    --accent: #f0883e; --blue: #388bfd;
-    --radius: 12px; --radius-sm: 8px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Vazirmatn','Tahoma',sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; font-size: 14px; }
-
-  /* Header */
-  .header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 100; }
-  .header h1 { font-size: 16px; font-weight: 700; color: var(--accent); }
-  .header-sub { font-size: 11px; color: var(--text2); }
-  .user-badge { margin-right: auto; background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 4px 10px; font-size: 11px; color: var(--text2); }
-
-  /* Nav */
-  .nav { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; position: sticky; top: 57px; z-index: 99; }
-  .nav::-webkit-scrollbar { display: none; }
-  .nav-btn { flex: 1; min-width: 65px; padding: 10px 6px; background: none; border: none; color: var(--text2); font-size: 11px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; border-bottom: 2px solid transparent; transition: all 0.2s; }
-  .nav-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
-  .nav-btn .icon { font-size: 17px; }
-
-  /* Pages */
-  .page { display: none; padding: 16px; }
-  .page.active { display: block; }
-
-  /* Card */
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 12px; }
-  .card-title { font-size: 11px; color: var(--text2); margin-bottom: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-
-  /* Market row */
-  .market-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); cursor: pointer; }
-  .market-row:last-child { border-bottom: none; }
-  .market-row:active { opacity: 0.7; }
-  .market-name { font-weight: 600; font-size: 13px; }
-  .market-symbol { font-size: 11px; color: var(--text2); margin-top: 2px; }
-  .market-price { text-align: left; font-weight: 700; font-size: 14px; }
-  .market-change { font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
-  .market-change.up { background: rgba(46,160,67,0.2); color: var(--green-light); }
-  .market-change.down { background: rgba(218,54,51,0.2); color: var(--red-light); }
-
-  /* Asset */
-  .asset-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
-  .asset-row:last-child { border-bottom: none; }
-  .asset-icon { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; background: var(--surface2); margin-left: 10px; }
-  .asset-left { display: flex; align-items: center; }
-  .asset-name { font-weight: 600; font-size: 13px; }
-  .asset-sym { font-size: 11px; color: var(--text2); }
-  .asset-right { text-align: left; }
-  .asset-bal { font-weight: 700; font-size: 14px; }
-  .asset-val { font-size: 11px; color: var(--text2); margin-top: 2px; }
-
-  /* Total */
-  .total-box { background: rgba(240,136,62,0.1); border: 1px solid rgba(240,136,62,0.3); border-radius: var(--radius); padding: 16px; text-align: center; margin-bottom: 16px; }
-  .total-amount { font-size: 26px; font-weight: 800; color: var(--accent); }
-  .total-label { font-size: 12px; color: var(--text2); margin-top: 4px; }
-
-  /* Calc */
-  .calc-box { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 10px; }
-  .calc-label { font-size: 12px; color: var(--text2); margin-bottom: 6px; }
-  .calc-row { display: flex; gap: 8px; }
-  .calc-input { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; color: var(--text); font-size: 16px; font-family: inherit; direction: ltr; text-align: right; }
-  .calc-input:focus { outline: none; border-color: var(--accent); }
-  .calc-select { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 8px; color: var(--text); font-size: 13px; font-family: inherit; }
-  .swap-btn { text-align: center; font-size: 22px; color: var(--text2); padding: 8px; cursor: pointer; }
-  .calc-result { background: rgba(240,136,62,0.1); border: 1px solid rgba(240,136,62,0.3); border-radius: var(--radius); padding: 16px; text-align: center; margin-top: 12px; display: none; }
-  .calc-res-num { font-size: 24px; font-weight: 800; color: var(--accent); }
-  .calc-res-lbl { font-size: 12px; color: var(--text2); margin-top: 4px; }
-
-  /* Order */
-  .side-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
-  .side-tab { flex: 1; padding: 10px; border-radius: var(--radius-sm); border: 2px solid var(--border); background: none; color: var(--text2); font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.2s; }
-  .side-tab.buy.active { background: var(--green); border-color: var(--green); color: white; }
-  .side-tab.sell.active { background: var(--red); border-color: var(--red); color: white; }
-  .type-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
-  .type-tab { flex: 1; padding: 8px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: none; color: var(--text2); font-size: 12px; cursor: pointer; font-family: inherit; transition: all 0.2s; }
-  .type-tab.active { border-color: var(--accent); color: var(--accent); background: rgba(240,136,62,0.1); }
-
-  /* Form */
-  .fgrp { margin-bottom: 12px; }
-  .flbl { font-size: 12px; color: var(--text2); margin-bottom: 6px; display: block; }
-  .finput { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; color: var(--text); font-size: 15px; font-family: inherit; direction: ltr; text-align: right; }
-  .finput:focus { outline: none; border-color: var(--accent); }
-  .fselect { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; color: var(--text); font-size: 14px; font-family: inherit; }
-  .hint { font-size: 11px; color: var(--text2); margin-top: 4px; }
-  .hint span { color: var(--accent); }
-
-  /* Summary */
-  .summary { background: var(--surface2); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 12px; font-size: 13px; display: none; }
-  .srow { display: flex; justify-content: space-between; padding: 3px 0; }
-  .sval { font-weight: 600; }
-  .divider { height: 1px; background: var(--border); margin: 8px 0; }
-
-  /* Order row */
-  .order-card { background: var(--surface2); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 8px; }
-  .order-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .badge { padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-  .badge-buy { background: rgba(46,160,67,0.2); color: var(--green-light); }
-  .badge-sell { background: rgba(218,54,51,0.2); color: var(--red-light); }
-  .badge-active { background: rgba(56,139,253,0.2); color: var(--blue); }
-  .badge-closed { background: rgba(139,148,158,0.2); color: var(--text2); }
-  .order-meta { font-size: 12px; color: var(--text2); }
-  .cancel-order-btn { background: rgba(218,54,51,0.15); border: 1px solid var(--red); color: var(--red-light); padding: 4px 10px; border-radius: var(--radius-sm); cursor: pointer; font-size: 12px; font-family: inherit; }
-
-  /* Alert */
-  .alert-card { background: var(--surface2); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-  .alert-sym { font-weight: 700; font-size: 13px; }
-  .alert-cond { font-size: 11px; color: var(--text2); margin-top: 3px; }
-  .del-btn { background: rgba(218,54,51,0.2); border: none; color: var(--red-light); padding: 6px 10px; border-radius: var(--radius-sm); cursor: pointer; font-size: 14px; }
-
-  /* Buttons */
-  .btn { width: 100%; padding: 14px; border: none; border-radius: var(--radius); font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; transition: opacity 0.2s; }
-  .btn:active { opacity: 0.8; }
-  .btn-buy { background: var(--green); color: white; }
-  .btn-sell { background: var(--red); color: white; }
-  .btn-primary { background: var(--accent); color: white; }
-
-  /* Section title */
-  .stitle { font-size: 13px; font-weight: 700; color: var(--text2); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-  .rbtn { background: none; border: none; color: var(--text2); cursor: pointer; font-size: 15px; padding: 2px; }
-
-  /* Tab switcher */
-  .tab-sw { display: flex; gap: 8px; margin-bottom: 14px; }
-
-  /* Modal */
-  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 200; display: none; align-items: flex-end; }
-  .overlay.show { display: flex; }
-  .modal { background: var(--surface); border-radius: var(--radius) var(--radius) 0 0; padding: 20px; width: 100%; }
-  .modal-title { font-size: 16px; font-weight: 700; text-align: center; margin-bottom: 14px; }
-  .modal-btns { display: flex; gap: 10px; margin-top: 14px; }
-  .mbtn { flex: 1; padding: 12px; border-radius: var(--radius-sm); border: none; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
-  .mbtn-ok { background: var(--green); color: white; }
-  .mbtn-ok.sell { background: var(--red); }
-  .mbtn-cancel { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
-
-  /* Toast */
-  .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 20px; font-size: 13px; z-index: 9999; opacity: 0; transition: opacity 0.3s; max-width: 90vw; text-align: center; pointer-events: none; }
-  .toast.show { opacity: 1; }
-  .toast.ok { border-color: var(--green); color: var(--green-light); }
-  .toast.err { border-color: var(--red); color: var(--red-light); }
-
-  /* Misc */
-  .loading { text-align: center; color: var(--text2); padding: 40px 16px; }
-  .spin { display: inline-block; font-size: 24px; animation: spin 1s linear infinite; margin-bottom: 10px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .empty { text-align: center; color: var(--text2); padding: 40px 16px; }
-  .empty .eicon { font-size: 32px; margin-bottom: 10px; }
-  .no-token { text-align: center; padding: 40px 16px; }
-  .no-token .big { font-size: 40px; margin-bottom: 12px; }
+  :root { --bg:#0d1117;--surface:#161b22;--surface2:#21262d;--border:#30363d;--text:#e6edf3;--text2:#8b949e;--green:#2ea043;--green-light:#3fb950;--red:#da3633;--red-light:#f85149;--accent:#f0883e;--radius:12px;--radius-sm:8px; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Vazirmatn','Tahoma',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;font-size:14px}
+  .header{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100}
+  .header h1{font-size:16px;font-weight:700;color:var(--accent)}
+  .header-sub{font-size:11px;color:var(--text2)}
+  .nav{display:flex;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:57px;z-index:99}
+  .nav-btn{flex:1;padding:10px 6px;background:none;border:none;color:var(--text2);font-size:11px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-bottom:2px solid transparent;transition:all 0.2s}
+  .nav-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+  .nav-btn .icon{font-size:18px}
+  .page{display:none;padding:16px}
+  .page.active{display:block}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:12px}
+  .card-title{font-size:11px;color:var(--text2);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+  .market-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+  .market-row:last-child{border-bottom:none}
+  .market-name{font-weight:600;font-size:13px}
+  .market-symbol{font-size:11px;color:var(--text2);margin-top:2px}
+  .market-price{text-align:left;font-weight:700;font-size:14px}
+  .market-change{font-size:11px;padding:2px 6px;border-radius:4px;font-weight:600;margin-top:2px;display:inline-block}
+  .market-change.up{background:rgba(46,160,67,.2);color:var(--green-light)}
+  .market-change.down{background:rgba(218,54,51,.2);color:var(--red-light)}
+  .calc-box{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px}
+  .calc-label{font-size:12px;color:var(--text2);margin-bottom:6px}
+  .calc-row{display:flex;gap:8px}
+  .calc-input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-size:16px;font-family:inherit;direction:ltr;text-align:right}
+  .calc-input:focus{outline:none;border-color:var(--accent)}
+  .calc-select{background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 8px;color:var(--text);font-size:13px;font-family:inherit}
+  .swap-btn{text-align:center;font-size:22px;color:var(--text2);padding:8px;cursor:pointer}
+  .calc-result{background:rgba(240,136,62,.1);border:1px solid rgba(240,136,62,.3);border-radius:var(--radius);padding:16px;text-align:center;margin-top:12px;display:none}
+  .calc-res-num{font-size:24px;font-weight:800;color:var(--accent)}
+  .calc-res-lbl{font-size:12px;color:var(--text2);margin-top:4px}
+  .fgrp{margin-bottom:12px}
+  .flbl{font-size:12px;color:var(--text2);margin-bottom:6px;display:block}
+  .finput{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;color:var(--text);font-size:15px;font-family:inherit;direction:ltr;text-align:right}
+  .finput:focus{outline:none;border-color:var(--accent)}
+  .fselect{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;color:var(--text);font-size:14px;font-family:inherit}
+  .alert-card{background:var(--surface2);border-radius:var(--radius-sm);padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+  .alert-sym{font-weight:700;font-size:13px}
+  .alert-cond{font-size:11px;color:var(--text2);margin-top:3px}
+  .del-btn{background:rgba(218,54,51,.2);border:none;color:var(--red-light);padding:6px 10px;border-radius:var(--radius-sm);cursor:pointer;font-size:14px}
+  .btn{width:100%;padding:14px;border:none;border-radius:var(--radius);font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .2s}
+  .btn:active{opacity:.8}
+  .btn-primary{background:var(--accent);color:white}
+  .stitle{font-size:13px;font-weight:700;color:var(--text2);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+  .rbtn{background:none;border:none;color:var(--text2);cursor:pointer;font-size:15px;padding:2px}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 20px;font-size:13px;z-index:9999;opacity:0;transition:opacity .3s;max-width:90vw;text-align:center;pointer-events:none}
+  .toast.show{opacity:1}
+  .toast.ok{border-color:var(--green);color:var(--green-light)}
+  .toast.err{border-color:var(--red);color:var(--red-light)}
+  .loading{text-align:center;color:var(--text2);padding:40px 16px}
+  .spin{display:inline-block;font-size:24px;animation:spin 1s linear infinite;margin-bottom:10px}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .empty{text-align:center;color:var(--text2);padding:40px 16px}
+  .empty .eicon{font-size:32px;margin-bottom:10px}
 </style>
 </head>
 <body>
@@ -165,30 +69,21 @@
   <span style="font-size:20px">🪙</span>
   <div>
     <h1>بیت‌پین</h1>
-    <div class="header-sub">پنل معاملات امن</div>
+    <div class="header-sub">پنل قیمت و تبدیل ارز</div>
   </div>
-  <div class="user-badge" id="user-badge">در حال بارگذاری...</div>
 </div>
 
 <nav class="nav">
   <button class="nav-btn active" onclick="goPage('prices',this)"><span class="icon">📊</span>قیمت‌ها</button>
-  <button class="nav-btn" onclick="goPage('balance',this)"><span class="icon">💰</span>موجودی</button>
-  <button class="nav-btn" onclick="goPage('calc',this)"><span class="icon">🧮</span>حساب</button>
-  <button class="nav-btn" onclick="goPage('order',this)"><span class="icon">🟢</span>سفارش</button>
-  <button class="nav-btn" onclick="goPage('orders',this)"><span class="icon">📋</span>سفارش‌ها</button>
+  <button class="nav-btn" onclick="goPage('calc',this)"><span class="icon">🧮</span>ماشین‌حساب</button>
   <button class="nav-btn" onclick="goPage('alerts',this)"><span class="icon">🔔</span>هشدار</button>
+  <button class="nav-btn" onclick="goPage('bot',this)"><span class="icon">🤖</span>ربات</button>
 </nav>
 
 <!-- PRICES -->
 <div id="page-prices" class="page active">
   <div class="stitle">قیمت لحظه‌ای <button class="rbtn" onclick="loadPrices()">🔄</button></div>
   <div id="prices-list"><div class="loading"><div class="spin">⏳</div>در حال دریافت...</div></div>
-</div>
-
-<!-- BALANCE -->
-<div id="page-balance" class="page">
-  <div class="stitle">موجودی کیف پول <button class="rbtn" onclick="loadBalance()">🔄</button></div>
-  <div id="balance-content"><div class="loading"><div class="spin">⏳</div>در حال دریافت...</div></div>
 </div>
 
 <!-- CALC -->
@@ -230,58 +125,6 @@
   </div>
 </div>
 
-<!-- ORDER -->
-<div id="page-order" class="page">
-  <div class="side-tabs">
-    <button class="side-tab buy active" onclick="setSide('buy',this)">خرید</button>
-    <button class="side-tab sell" onclick="setSide('sell',this)">فروش</button>
-  </div>
-  <div class="fgrp">
-    <label class="flbl">بازار</label>
-    <select class="fselect" id="ord-market" onchange="onMarketChange()">
-      <option value="USDT_IRT">تتر / تومان</option>
-      <option value="TRX_IRT">ترون / تومان</option>
-      <option value="TON_IRT">تون / تومان</option>
-      <option value="BTC_IRT">بیت‌کوین / تومان</option>
-      <option value="ETH_IRT">اتریوم / تومان</option>
-      <option value="TRX_USDT">ترون / تتر</option>
-      <option value="TON_USDT">تون / تتر</option>
-    </select>
-  </div>
-  <div class="type-tabs">
-    <button class="type-tab active" onclick="setType('limit',this)">📌 Limit</button>
-    <button class="type-tab" onclick="setType('market',this)">⚡ Market</button>
-  </div>
-  <div class="fgrp" id="price-grp">
-    <label class="flbl">قیمت <span id="price-unit" style="color:var(--text2)"></span></label>
-    <input type="number" class="finput" id="ord-price" placeholder="0" oninput="updateSum()">
-    <div class="hint">قیمت لحظه‌ای: <span id="live-price">—</span></div>
-  </div>
-  <div class="fgrp">
-    <label class="flbl">حجم <span id="amt-unit" style="color:var(--text2)"></span></label>
-    <input type="number" class="finput" id="ord-amt" placeholder="0" oninput="updateSum()">
-  </div>
-  <div class="summary" id="ord-summary">
-    <div class="srow"><span>نوع:</span><span class="sval" id="s-type"></span></div>
-    <div class="srow"><span>بازار:</span><span class="sval" id="s-market"></span></div>
-    <div class="srow"><span>قیمت:</span><span class="sval" id="s-price"></span></div>
-    <div class="srow"><span>حجم:</span><span class="sval" id="s-amt"></span></div>
-    <div class="divider"></div>
-    <div class="srow"><span>مبلغ کل:</span><span class="sval" id="s-total" style="color:var(--accent)"></span></div>
-  </div>
-  <button class="btn btn-buy" id="ord-btn" onclick="openConfirm()">ثبت سفارش خرید</button>
-</div>
-
-<!-- ORDERS -->
-<div id="page-orders" class="page">
-  <div class="tab-sw">
-    <button class="type-tab active" onclick="setOrdersTab('active',this)">باز</button>
-    <button class="type-tab" onclick="setOrdersTab('closed',this)">تاریخچه</button>
-  </div>
-  <div class="stitle"><span id="orders-lbl">سفارش‌های باز</span><button class="rbtn" onclick="loadOrders()">🔄</button></div>
-  <div id="orders-list"><div class="loading"><div class="spin">⏳</div>در حال دریافت...</div></div>
-</div>
-
 <!-- ALERTS -->
 <div id="page-alerts" class="page">
   <div class="card">
@@ -313,443 +156,145 @@
   <div id="alerts-list"></div>
 </div>
 
-<!-- Confirm Modal -->
-<div class="overlay" id="modal">
-  <div class="modal">
-    <div class="modal-title" id="modal-title">تأیید سفارش</div>
-    <div id="modal-body"></div>
-    <div class="modal-btns">
-      <button class="mbtn mbtn-cancel" onclick="closeModal()">انصراف</button>
-      <button class="mbtn mbtn-ok" id="modal-ok" onclick="submitOrder()">ثبت</button>
+<!-- BOT -->
+<div id="page-bot" class="page">
+  <div class="card" style="text-align:center;padding:24px">
+    <div style="font-size:48px;margin-bottom:16px">🤖</div>
+    <div style="font-weight:700;font-size:16px;margin-bottom:8px">ربات معاملات بیت‌پین</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.6">
+      برای موجودی، ثبت سفارش،<br>لغو سفارش و تاریخچه<br>از ربات تلگرام استفاده کنید
     </div>
+    <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:12px;margin-bottom:16px;font-size:13px;text-align:right;color:var(--text2)">
+      <div style="margin-bottom:6px">💰 /balance — موجودی</div>
+      <div style="margin-bottom:6px">🟢 /neworder — ثبت سفارش</div>
+      <div style="margin-bottom:6px">📋 /orders — سفارش‌های باز</div>
+      <div style="margin-bottom:6px">📜 /history — تاریخچه</div>
+      <div>❌ /cancel — لغو سفارش</div>
+    </div>
+    <button class="btn btn-primary" onclick="tg.close()">بازگشت به ربات</button>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ═══════════════════════════════════════════════
-// CONFIG — آدرس سرور رو اینجا بذار
-// ═══════════════════════════════════════════════
-const SERVER = 'http://190.2.143.208:5050'; // ← آدرس سرور API خودت
-const BP_API = 'https://api.bitpin.ir';
-
-// ═══════════════════════════════════════════════
-// Telegram WebApp
-// ═══════════════════════════════════════════════
 const tg = window.Telegram.WebApp;
-tg.ready();
-tg.expand();
+tg.ready(); tg.expand();
 tg.setHeaderColor('#0d1117');
 tg.setBackgroundColor('#0d1117');
-const INIT_DATA = tg.initData || '';
 
-// ═══════════════════════════════════════════════
-// State
-// ═══════════════════════════════════════════════
-let prices     = {};
-let orderSide  = 'buy';
-let execType   = 'limit';
-let ordersTab  = 'active';
-let hasToken   = false;
-let pendingOrd = null;
-let alerts     = JSON.parse(localStorage.getItem('bp_al') || '[]');
+const BP_API = 'https://api.bitpin.ir';
+let prices = {};
+let alerts = JSON.parse(localStorage.getItem('bp_al') || '[]');
 
 const ALBL = {IRT:'تومان',USDT:'تتر',TRX:'ترون',TON:'تون',BTC:'بیت‌کوین',ETH:'اتریوم'};
-const MLBL = {
-  'USDT_IRT':'تتر/تومان','TRX_IRT':'ترون/تومان','TON_IRT':'تون/تومان',
-  'BTC_IRT':'بیت‌کوین/تومان','ETH_IRT':'اتریوم/تومان',
-  'TRX_USDT':'ترون/تتر','TON_USDT':'تون/تتر'
-};
+const MLBL = {'USDT_IRT':'تتر / تومان','TRX_IRT':'ترون / تومان','TON_IRT':'تون / تومان','BTC_IRT':'بیت‌کوین / تومان','ETH_IRT':'اتریوم / تومان','TRX_USDT':'ترون / تتر','TON_USDT':'تون / تتر'};
+const ALBL2 = {'USDT_IRT':'تتر','TRX_IRT':'ترون','TON_IRT':'تون','BTC_IRT':'بیت‌کوین','ETH_IRT':'اتریوم'};
 
-// ═══════════════════════════════════════════════
-// Helpers
-// ═══════════════════════════════════════════════
-function fmt(n, dec=0) {
+function fmt(n) {
   const v = parseFloat(n);
-  if (!v || isNaN(v)) return '0';
-  if (v >= 1e9)  return (v/1e9).toFixed(2)+'B';
-  if (v >= 1e6)  return (v/1e6).toFixed(2)+'M';
-  if (v >= 1000) return v.toLocaleString('fa-IR',{maximumFractionDigits:0});
+  if (!v||isNaN(v)) return '0';
+  if (v>=1e9) return (v/1e9).toFixed(2)+'B';
+  if (v>=1e6) return (v/1e6).toFixed(2)+'M';
+  if (v>=1000) return v.toLocaleString('fa-IR',{maximumFractionDigits:0});
   return v.toLocaleString('fa-IR',{maximumFractionDigits:6});
 }
 function fmtCh(c) {
-  const v = parseFloat(c);
+  const v=parseFloat(c);
   if (isNaN(v)) return {cls:'up',txt:'0%'};
-  return {cls: v>=0?'up':'down', txt:(v>=0?'▲ +':'▼ ')+v.toFixed(2)+'%'};
+  return {cls:v>=0?'up':'down',txt:(v>=0?'▲ +':'▼ ')+v.toFixed(2)+'%'};
 }
-function toast(msg, type='') {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = 'toast show ' + type;
-  setTimeout(()=> el.className='toast', 3000);
+function toast(msg,type='') {
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.className='toast show '+type;
+  setTimeout(()=>el.className='toast',3000);
 }
-function loading(id) {
-  document.getElementById(id).innerHTML = '<div class="loading"><div class="spin">⏳</div>در حال دریافت...</div>';
-}
-
-// POST به سرور با initData
-async function api(path, body={}) {
-  const r = await fetch(SERVER + path, {
-    method: 'POST',
-    headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({initData: INIT_DATA, ...body}),
-  });
-  return r.json();
-}
-
-// ═══════════════════════════════════════════════
-// Auth — اجرا در شروع
-// ═══════════════════════════════════════════════
-async function initAuth() {
-  try {
-    const res = await api('/api/auth');
-    if (!res.ok) {
-      document.getElementById('user-badge').textContent = '⛔ خطا';
-      return;
-    }
-    hasToken = res.has_token;
-    const name = res.username || ('User '+res.user_id);
-    document.getElementById('user-badge').textContent = (hasToken ? '✅ ' : '⚠️ ') + name;
-  } catch(e) {
-    document.getElementById('user-badge').textContent = '🔌 آفلاین';
-  }
-}
-
-// ═══════════════════════════════════════════════
-// Navigation
-// ═══════════════════════════════════════════════
-function goPage(name, btn) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+function goPage(name,btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
   btn.classList.add('active');
-  if (name==='prices')  loadPrices();
-  if (name==='balance') loadBalance();
-  if (name==='orders')  loadOrders();
-  if (name==='alerts')  renderAlerts();
-  if (name==='order')   onMarketChange();
+  if (name==='prices') loadPrices();
+  if (name==='alerts') renderAlerts();
 }
-
-// ═══════════════════════════════════════════════
-// Prices (بدون نیاز به توکن)
-// ═══════════════════════════════════════════════
 async function loadPrices() {
   try {
-    const r    = await fetch(BP_API + '/api/v1/mkt/tickers/');
-    const data = await r.json();
-    prices = {};
-    data.forEach(m => prices[m.symbol] = m);
-
-    const syms = ['USDT_IRT','TRX_IRT','TON_IRT','BTC_IRT','ETH_IRT','TRX_USDT','TON_USDT'];
-    let html = '';
-    syms.forEach(sym => {
-      const m = prices[sym];
-      if (!m) return;
-      const ch = fmtCh(m.daily_change_price);
-      html += `<div class="market-row" onclick="pickMarket('${sym}')">
+    const r=await fetch(BP_API+'/api/v1/mkt/tickers/');
+    const data=await r.json();
+    prices={};
+    data.forEach(m=>prices[m.symbol]=m);
+    const syms=['USDT_IRT','TRX_IRT','TON_IRT','BTC_IRT','ETH_IRT','TRX_USDT','TON_USDT'];
+    let html='';
+    syms.forEach(sym=>{
+      const m=prices[sym]; if(!m) return;
+      const ch=fmtCh(m.daily_change_price);
+      html+=`<div class="market-row">
         <div><div class="market-name">${MLBL[sym]||sym}</div><div class="market-symbol">${sym.replace('_','/')}</div></div>
         <div style="text-align:left"><div class="market-price">${fmt(m.price)}</div><div class="market-change ${ch.cls}">${ch.txt}</div></div>
       </div>`;
     });
-    document.getElementById('prices-list').innerHTML = html || '<div class="empty"><div class="eicon">📭</div>داده‌ای نیست</div>';
+    document.getElementById('prices-list').innerHTML=html||'<div class="empty"><div class="eicon">📭</div>داده‌ای نیست</div>';
+    checkAlerts();
   } catch(e) {
-    document.getElementById('prices-list').innerHTML = '<div class="empty"><div class="eicon">❌</div>خطا در دریافت</div>';
+    document.getElementById('prices-list').innerHTML='<div class="empty"><div class="eicon">❌</div>خطا در دریافت</div>';
   }
 }
-
-function pickMarket(sym) {
-  document.getElementById('ord-market').value = sym;
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('page-order').classList.add('active');
-  document.querySelectorAll('.nav-btn')[3].classList.add('active');
-  onMarketChange();
-}
-
-// ═══════════════════════════════════════════════
-// Balance (نیاز به توکن)
-// ═══════════════════════════════════════════════
-async function loadBalance() {
-  loading('balance-content');
-  if (!hasToken) { noTokenMsg('balance-content'); return; }
-  try {
-    const res = await api('/api/wallets');
-    if (!res.ok) { document.getElementById('balance-content').innerHTML = '<div class="empty"><div class="eicon">❌</div>'+res.error+'</div>'; return; }
-
-    // محاسبه ارزش کل
-    let total = 0;
-    const wallets = res.wallets || [];
-    let html = '';
-
-    wallets.forEach(w => {
-      const asset = w.asset || w.currency || '';
-      const bal   = parseFloat(w.balance || 0);
-      if (bal <= 0) return;
-      let val = 0;
-      if (asset === 'IRT') {
-        val = bal;
-      } else {
-        const sym = asset+'_IRT';
-        const p   = prices[sym] ? parseFloat(prices[sym].price) : 0;
-        val = bal * p;
-      }
-      total += val;
-      const icons = {IRT:'🇮🇷',USDT:'💵',TRX:'⚡',TON:'💎',BTC:'₿',ETH:'Ξ'};
-      html += `<div class="asset-row">
-        <div class="asset-left">
-          <div class="asset-icon">${icons[asset]||'🪙'}</div>
-          <div><div class="asset-name">${ALBL[asset]||asset}</div><div class="asset-sym">${asset}</div></div>
-        </div>
-        <div class="asset-right">
-          <div class="asset-bal">${fmt(bal)}</div>
-          ${val>0?`<div class="asset-val">≈ ${fmt(val)} تومان</div>`:''}
-        </div>
-      </div>`;
-    });
-
-    document.getElementById('balance-content').innerHTML = `
-      <div class="total-box">
-        <div class="total-amount">${fmt(total)}</div>
-        <div class="total-label">ارزش کل به تومان</div>
-      </div>
-      <div class="card">${html || '<div class="empty" style="padding:20px"><div class="eicon">💰</div>موجودی صفر است</div>'}</div>`;
-  } catch(e) {
-    document.getElementById('balance-content').innerHTML = '<div class="empty"><div class="eicon">❌</div>خطا در ارتباط با سرور</div>';
-  }
-}
-
-function noTokenMsg(id) {
-  document.getElementById(id).innerHTML = `
-    <div class="no-token">
-      <div class="big">🔐</div>
-      <div style="font-weight:700;margin-bottom:8px">کلید API ثبت نشده</div>
-      <div style="font-size:13px;color:var(--text2);margin-bottom:16px">ابتدا در ربات تلگرام با دستور /token کلید API بیت‌پین را ثبت کنید</div>
-      <button class="btn btn-primary" onclick="tg.close()">بازگشت به ربات</button>
-    </div>`;
-}
-
-// ═══════════════════════════════════════════════
-// Calc
-// ═══════════════════════════════════════════════
 function doCalc() {
-  const amt  = parseFloat(document.getElementById('calc-amount').value);
-  const from = document.getElementById('calc-from').value;
-  const to   = document.getElementById('calc-to').value;
-  const res  = document.getElementById('calc-result');
-  if (!amt || isNaN(amt)) { res.style.display='none'; return; }
-
-  const getP = b => prices[b+'_IRT'] ? parseFloat(prices[b+'_IRT'].price) : 0;
-  let result = 0;
+  const amt=parseFloat(document.getElementById('calc-amount').value);
+  const from=document.getElementById('calc-from').value;
+  const to=document.getElementById('calc-to').value;
+  const res=document.getElementById('calc-result');
+  if (!amt||isNaN(amt)){res.style.display='none';return;}
+  const getP=b=>prices[b+'_IRT']?parseFloat(prices[b+'_IRT'].price):0;
+  let result=0;
   if (from===to) result=amt;
-  else if (from==='IRT') { const p=getP(to);  result=p>0?amt/p:0; }
-  else if (to==='IRT')   { const p=getP(from); result=amt*p; }
-  else { const pf=getP(from),pt=getP(to); result=(pf>0&&pt>0)?(amt*pf)/pt:0; }
-
-  document.getElementById('calc-out').value = result>0 ? result.toFixed(8).replace(/\.?0+$/,'') : '0';
-  document.getElementById('calc-res-num').textContent = fmt(result)+' '+(ALBL[to]||to);
-  document.getElementById('calc-res-lbl').textContent = fmt(amt)+' '+(ALBL[from]||from)+' ≈ '+fmt(result)+' '+(ALBL[to]||to);
+  else if (from==='IRT'){const p=getP(to);result=p>0?amt/p:0;}
+  else if (to==='IRT'){const p=getP(from);result=amt*p;}
+  else{const pf=getP(from),pt=getP(to);result=(pf>0&&pt>0)?(amt*pf)/pt:0;}
+  document.getElementById('calc-out').value=result>0?result.toFixed(8).replace(/\.?0+$/,''):'0';
+  document.getElementById('calc-res-num').textContent=fmt(result)+' '+(ALBL[to]||to);
+  document.getElementById('calc-res-lbl').textContent=fmt(amt)+' '+(ALBL[from]||from)+' ≈ '+fmt(result)+' '+(ALBL[to]||to);
   res.style.display='block';
 }
-function swapCalc() {
-  const f=document.getElementById('calc-from'), t=document.getElementById('calc-to');
-  [f.value,t.value]=[t.value,f.value]; doCalc();
+function swapCalc(){
+  const f=document.getElementById('calc-from'),t=document.getElementById('calc-to');
+  [f.value,t.value]=[t.value,f.value];doCalc();
 }
-
-// ═══════════════════════════════════════════════
-// Order
-// ═══════════════════════════════════════════════
-function setSide(side,btn) {
-  orderSide=side;
-  document.querySelectorAll('.side-tab').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  const ob=document.getElementById('ord-btn');
-  ob.textContent=side==='buy'?'ثبت سفارش خرید':'ثبت سفارش فروش';
-  ob.className='btn '+(side==='buy'?'btn-buy':'btn-sell');
-  document.getElementById('modal-ok').className='mbtn mbtn-ok'+(side==='sell'?' sell':'');
-  updateSum();
-}
-function setType(type,btn) {
-  execType=type;
-  document.querySelectorAll('.type-tab').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('price-grp').style.display=type==='limit'?'block':'none';
-  updateSum();
-}
-function onMarketChange() {
-  const sym=document.getElementById('ord-market').value;
-  const [base,quote]=sym.split('_');
-  document.getElementById('price-unit').textContent=quote;
-  document.getElementById('amt-unit').textContent=base;
-  const m=prices[sym];
-  if (m) {
-    document.getElementById('live-price').innerHTML=`<span>${fmt(m.price)} ${quote}</span>`;
-    if (execType==='limit' && !document.getElementById('ord-price').value)
-      document.getElementById('ord-price').value=m.price;
-  }
-  updateSum();
-}
-function updateSum() {
-  const price=parseFloat(document.getElementById('ord-price').value)||0;
-  const amt  =parseFloat(document.getElementById('ord-amt').value)||0;
-  const sym  =document.getElementById('ord-market').value;
-  const [base,quote]=sym.split('_');
-  const sum=document.getElementById('ord-summary');
-  if (amt>0) {
-    sum.style.display='block';
-    document.getElementById('s-type').textContent=(orderSide==='buy'?'خرید':'فروش')+' — '+(execType==='limit'?'Limit':'Market');
-    document.getElementById('s-market').textContent=MLBL[sym]||sym;
-    document.getElementById('s-price').textContent=execType==='limit'?(fmt(price)+' '+quote):'قیمت بازار';
-    document.getElementById('s-amt').textContent=fmt(amt)+' '+base;
-    const m=prices[sym];
-    const ref=execType==='limit'?price:(m?parseFloat(m.price):0);
-    document.getElementById('s-total').textContent=ref>0?('≈ '+fmt(ref*amt)+' '+quote):'-';
-  } else {
-    sum.style.display='none';
-  }
-}
-function openConfirm() {
-  if (!hasToken) { toast('ابتدا در ربات /token را بزنید','err'); return; }
-  const price=parseFloat(document.getElementById('ord-price').value)||0;
-  const amt  =parseFloat(document.getElementById('ord-amt').value)||0;
-  const sym  =document.getElementById('ord-market').value;
-  const [base,quote]=sym.split('_');
-  if (amt<=0) { toast('حجم را وارد کنید','err'); return; }
-  if (execType==='limit'&&price<=0) { toast('قیمت را وارد کنید','err'); return; }
-  pendingOrd={sym,side:orderSide,type:execType,price,amt,base,quote};
-  document.getElementById('modal-title').textContent=orderSide==='buy'?'🟢 تأیید خرید':'🔴 تأیید فروش';
-  document.getElementById('modal-body').innerHTML=`
-    <div class="summary" style="display:block">
-      <div class="srow"><span>بازار:</span><span class="sval">${MLBL[sym]||sym}</span></div>
-      <div class="srow"><span>نوع:</span><span class="sval">${execType==='limit'?'Limit':'Market'}</span></div>
-      ${execType==='limit'?`<div class="srow"><span>قیمت:</span><span class="sval">${fmt(price)} ${quote}</span></div>`:''}
-      <div class="srow"><span>حجم:</span><span class="sval">${fmt(amt)} ${base}</span></div>
-      <div class="divider"></div>
-      <div class="srow"><span>مبلغ کل:</span><span class="sval" style="color:var(--accent)">${execType==='limit'?fmt(price*amt):'بازار'} ${quote}</span></div>
-    </div>`;
-  document.getElementById('modal').classList.add('show');
-}
-function closeModal() { document.getElementById('modal').classList.remove('show'); pendingOrd=null; }
-
-async function submitOrder() {
-  if (!pendingOrd) return;
-  closeModal();
-  toast('در حال ارسال سفارش...');
-  try {
-    const res = await api('/api/order/create', {
-      symbol: pendingOrd.sym,
-      side:   pendingOrd.side,
-      type:   pendingOrd.type,
-      amount: pendingOrd.amt,
-      price:  pendingOrd.type==='limit'?pendingOrd.price:null,
-    });
-    if (res.ok) toast('✅ سفارش ثبت شد! شناسه: '+(res.order?.id||''),'ok');
-    else toast('❌ خطا: '+JSON.stringify(res.error),'err');
-  } catch(e) {
-    toast('❌ خطا در ارتباط با سرور','err');
-  }
-}
-
-// ═══════════════════════════════════════════════
-// Orders
-// ═══════════════════════════════════════════════
-function setOrdersTab(tab, btn) {
-  ordersTab=tab;
-  document.querySelectorAll('#page-orders .type-tab').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('orders-lbl').textContent=tab==='active'?'سفارش‌های باز':'تاریخچه';
-  loadOrders();
-}
-async function loadOrders() {
-  loading('orders-list');
-  if (!hasToken) { noTokenMsg('orders-list'); return; }
-  try {
-    const res = await api('/api/orders', {state: ordersTab});
-    if (!res.ok) { document.getElementById('orders-list').innerHTML='<div class="empty"><div class="eicon">❌</div>'+res.error+'</div>'; return; }
-    const list = res.orders || [];
-    if (!list.length) { document.getElementById('orders-list').innerHTML='<div class="empty"><div class="eicon">📋</div>سفارشی نیست</div>'; return; }
-    let html='';
-    list.forEach(o => {
-      const side=o.side==='buy'?'خرید':'فروش';
-      const sideCls=o.side==='buy'?'badge-buy':'badge-sell';
-      const stateCls=ordersTab==='active'?'badge-active':'badge-closed';
-      html+=`<div class="order-card">
-        <div class="order-top">
-          <div style="display:flex;gap:6px">
-            <span class="badge ${sideCls}">${side}</span>
-            <span class="badge ${stateCls}">${o.symbol||''}</span>
-          </div>
-          ${ordersTab==='active'?`<button class="cancel-order-btn" onclick="cancelOrder(${o.id})">لغو</button>`:'<span class="badge badge-closed">'+( o.state||'')+' </span>'}
-        </div>
-        <div class="order-meta">
-          قیمت: ${fmt(o.price)} | حجم: ${fmt(o.base_amount)} | پرشده: ${fmt(o.base_amount_filled||0)}
-        </div>
-      </div>`;
-    });
-    document.getElementById('orders-list').innerHTML=html;
-  } catch(e) {
-    document.getElementById('orders-list').innerHTML='<div class="empty"><div class="eicon">❌</div>خطا در ارتباط</div>';
-  }
-}
-async function cancelOrder(id) {
-  if (!confirm('لغو سفارش #'+id+'?')) return;
-  toast('در حال لغو...');
-  try {
-    const res = await api('/api/order/cancel', {order_id: id});
-    if (res.ok) { toast('✅ لغو شد','ok'); loadOrders(); }
-    else toast('❌ خطا در لغو','err');
-  } catch(e) { toast('❌ خطا','err'); }
-}
-
-// ═══════════════════════════════════════════════
-// Alerts (محلی)
-// ═══════════════════════════════════════════════
-function addAlert() {
-  const sym  = document.getElementById('al-cur').value;
-  const dir  = document.getElementById('al-dir').value;
-  const price= parseFloat(document.getElementById('al-price').value);
-  if (!price||price<=0) { toast('قیمت معتبر وارد کنید','err'); return; }
+function addAlert(){
+  const sym=document.getElementById('al-cur').value;
+  const dir=document.getElementById('al-dir').value;
+  const price=parseFloat(document.getElementById('al-price').value);
+  if (!price||price<=0){toast('قیمت معتبر وارد کنید','err');return;}
   alerts.push({sym,dir,price,id:Date.now()});
   localStorage.setItem('bp_al',JSON.stringify(alerts));
   document.getElementById('al-price').value='';
   renderAlerts();
   toast('✅ هشدار اضافه شد','ok');
 }
-function delAlert(id) {
+function delAlert(id){
   alerts=alerts.filter(a=>a.id!==id);
   localStorage.setItem('bp_al',JSON.stringify(alerts));
   renderAlerts();
 }
-function renderAlerts() {
-  const lbl={'USDT_IRT':'تتر','TRX_IRT':'ترون','TON_IRT':'تون','BTC_IRT':'بیت‌کوین','ETH_IRT':'اتریوم'};
-  if (!alerts.length) { document.getElementById('alerts-list').innerHTML='<div class="empty"><div class="eicon">🔔</div>هشداری ندارید</div>'; return; }
+function renderAlerts(){
+  if (!alerts.length){document.getElementById('alerts-list').innerHTML='<div class="empty"><div class="eicon">🔔</div>هشداری ندارید</div>';return;}
   document.getElementById('alerts-list').innerHTML=alerts.map(a=>`
     <div class="alert-card">
-      <div><div class="alert-sym">${lbl[a.sym]||a.sym}</div><div class="alert-cond">${a.dir==='above'?'📈 بالاتر از':'📉 پایین‌تر از'} ${fmt(a.price)} تومان</div></div>
+      <div><div class="alert-sym">${ALBL2[a.sym]||a.sym}</div><div class="alert-cond">${a.dir==='above'?'📈 بالاتر از':'📉 پایین‌تر از'} ${fmt(a.price)} تومان</div></div>
       <button class="del-btn" onclick="delAlert(${a.id})">🗑</button>
     </div>`).join('');
 }
-function checkAlerts() {
-  alerts.forEach(a => {
-    const m=prices[a.sym]; if(!m) return;
+function checkAlerts(){
+  alerts.forEach(a=>{
+    const m=prices[a.sym];if(!m)return;
     const p=parseFloat(m.price);
     if ((a.dir==='above'&&p>=a.price)||(a.dir==='below'&&p<=a.price))
-      toast('🔔 '+a.sym+' به '+fmt(a.price)+' رسید!','ok');
+      toast('🔔 '+(ALBL2[a.sym]||a.sym)+' به '+fmt(a.price)+' رسید!','ok');
   });
 }
-
-// ═══════════════════════════════════════════════
-// Init
-// ═══════════════════════════════════════════════
-(async () => {
-  await initAuth();
-  await loadPrices();
-  doCalc();
-  onMarketChange();
-  renderAlerts();
-  checkAlerts();
-  setInterval(async () => { await loadPrices(); checkAlerts(); }, 30000);
-})();
+loadPrices();
+renderAlerts();
+setInterval(loadPrices,30000);
 </script>
 </body>
 </html>
